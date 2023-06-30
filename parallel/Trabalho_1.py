@@ -21,6 +21,14 @@ from pycuda.compiler import SourceModule
 # multiply_them = mod.get_function("multiply_them")
 # multiply_them(drv.Out(dest), drv.In(a), drv.In(b),block=(400,1,1), grid=(1,1))
 
+item_1_2_par = SourceModule("""
+__global__ void item_1_2_par(float *dest, float *m, float *n, float a, float b){
+	const int i = threadIdx.x;
+    dest[i] = m[i]*a+n[i]*b;
+}
+""")
+prop_parallel = item_1_2_par.get_function("item_1_2_par")
+
 
 
 in_folder = "../img_in/"
@@ -62,9 +70,7 @@ def item_1_1():
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_1")
 
-
 ###### item 1.2 Combinação de imagens
-
 def item_1_2():
     st = time.process_time()
     
@@ -82,17 +88,25 @@ def item_1_2():
 
     f, axarr = plt.subplots(1,3) 
 
-    saida = img_1*0.2+img_2*0.8
+    saida = np.ones(img_1.shape)
+
+
+
+
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.2, 0.8, block=(400, 1, 1), grid=(1,1))
+    # saida = img_1*0.2+img_2*0.8
     axarr[0].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
     imageio.imsave(out_folder+'/item_1_2_out_a.png', saida)
 
-    saida = img_1*0.5+img_2*0.5
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.5, 0.5, block=(400, 1, 1), grid=(1,1))
+    # saida = img_1*0.5+img_2*0.5
     axarr[1].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
     imageio.imsave(out_folder+'/item_1_2_out_b.png', saida)
 
-    saida = img_1*0.8+img_2*0.2
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.8, 0.2, block=(400, 1, 1), grid=(1,1))
+    # saida = img_1*0.8+img_2*0.2
     axarr[2].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
 
@@ -107,7 +121,6 @@ def item_1_2():
     print("Elapsed", tt_time, "seconds on item_2")
 
 ###### item 1.3 Transformação de intensidade
-
 def item_1_3():
     st = time.process_time()
     
@@ -181,9 +194,7 @@ def item_1_3():
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_3")
 
-
 ###### item 1.4 Transformação de Cores
-
 def item_1_4():
     st = time.process_time()
 
@@ -233,10 +244,7 @@ def item_1_4():
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_4")
 
-
 ###### item 1.5 Transformação de Brilho
-
-
 def item_1_5():
     st = time.process_time()
 
@@ -290,7 +298,6 @@ def item_1_5():
     et = time.process_time()
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_5")
-
 
 def item_1_6():
     st = time.process_time()
@@ -350,8 +357,6 @@ def item_1_6():
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_6")
 
-
-
 def item_1_7_aux(img, i):
     plano_bit = np.empty(np.shape(img))
     plano_bit[:,:] = img[:,:]%2
@@ -363,7 +368,6 @@ def item_1_7_aux(img, i):
     # imprime(plano_bit, vmin=None, vmax=None)
     img = img>>1
     return img
-
 
 def item_1_7():
     st = time.process_time()
@@ -463,14 +467,14 @@ def item_1_8():
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_8")
     
-item_1_1()
+# item_1_1()
 item_1_2()
-item_1_3()
-item_1_4()
-item_1_5()
-item_1_6()
-item_1_7()
-item_1_8()
+# item_1_3()
+# item_1_4()
+# item_1_5()
+# item_1_6()
+# item_1_7()
+# item_1_8()
 
 
 
