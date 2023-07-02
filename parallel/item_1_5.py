@@ -40,7 +40,7 @@ def imprime(img, modo='gray', vmin=0, vmax=255):
 def item_1_5():
     st = time.process_time()
 
-    arquivo_1 = "Hi_Res.png"#input("Deseje o nome do arquivo desejado:\n")
+    arquivo_1 = "baboon.png"#input("Deseje o nome do arquivo desejado:\n")
     arquivo_1 = in_folder+arquivo_1
 
     img_1 = imageio.imread(arquivo_1)
