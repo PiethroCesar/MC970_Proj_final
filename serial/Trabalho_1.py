@@ -222,7 +222,7 @@ def item_1_4():
 def item_1_5():
     st = time.process_time()
 
-    arquivo_1 = "baboon.png"#input("Deseje o nome do arquivo desejado:\n")
+    arquivo_1 = "Hi_Res.png"#input("Deseje o nome do arquivo desejado:\n")
     arquivo_1 = in_folder+arquivo_1
 
     img_1 = imageio.imread(arquivo_1)
@@ -446,10 +446,10 @@ def item_1_8():
     print("Elapsed", tt_time, "seconds on item_8")
     
 # item_1_1()
-item_1_2()
+# item_1_2()
 # item_1_3()
 # item_1_4()
-# item_1_5()
+item_1_5()
 # item_1_6()
 # item_1_7()
 # item_1_8()
