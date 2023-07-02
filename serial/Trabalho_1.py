@@ -6,7 +6,7 @@ import cv2
 import time
 
 in_folder = "../img_in/"
-out_folder = '../img_out'
+out_folder = '../img_out_serial'
 
 def imprime(img, modo='gray', vmin=0, vmax=255):
     plt.imshow(img, cmap=modo, vmin=vmin, vmax=vmax)
@@ -439,20 +439,20 @@ def item_1_8():
 
     # imprime(saida_1)
     saida_1 = saida_1.astype(np.uint8)
-    imageio.imsave(out_folder+'/../img_out/item_1_8_out_H1.png', saida_1)
+    imageio.imsave(out_folder+'/sitem_1_8_out_H1.png', saida_1)
 
     et = time.process_time()
     tt_time = et-st
     print("Elapsed", tt_time, "seconds on item_8")
     
-item_1_1()
+# item_1_1()
 item_1_2()
-item_1_3()
-item_1_4()
-item_1_5()
-item_1_6()
-item_1_7()
-item_1_8()
+# item_1_3()
+# item_1_4()
+# item_1_5()
+# item_1_6()
+# item_1_7()
+# item_1_8()
 
 
 

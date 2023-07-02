@@ -1,1 +1,1 @@
-# MC970_Proj_final
+# Projeto final de MC970 voltado para procesamento de imagem

@@ -22,9 +22,15 @@ from pycuda.compiler import SourceModule
 # multiply_them(drv.Out(dest), drv.In(a), drv.In(b),block=(400,1,1), grid=(1,1))
 
 item_1_2_par = SourceModule("""
-__global__ void item_1_2_par(float *dest, float *m, float *n, float a, float b){
-	const int i = threadIdx.x;
-    dest[i] = m[i]*a+n[i]*b;
+__global__ void item_1_2_par(float *dest, float *m, float *n, float a, float b, int linhas, int colunas){
+    int ix = threadIdx.x + blockDim.x * blockIdx.x;
+    int iy = threadIdx.y + blockDim.y * blockIdx.y;
+    int coord = ix+iy*colunas;
+    if((ix <= colunas) && (iy <= linhas)){
+        dest[coord] = m[coord]*a+n[coord]*b;
+    }else{
+        dest[coord] = m[coord]*a+n[coord]*b;
+    }
 }
 """)
 prop_parallel = item_1_2_par.get_function("item_1_2_par")
@@ -32,7 +38,7 @@ prop_parallel = item_1_2_par.get_function("item_1_2_par")
 
 
 in_folder = "../img_in/"
-out_folder = '../img_out'
+out_folder = '../img_out_parallel'
 
 def imprime(img, modo='gray', vmin=0, vmax=255):
     plt.imshow(img, cmap=modo, vmin=vmin, vmax=vmax)
@@ -90,22 +96,35 @@ def item_1_2():
 
     saida = np.ones(img_1.shape)
 
+    linhas = len(img_1)
+    colunas = len(img_1[0])
+    
+
+    bdim = (32, 24, 1)
+    dx, mx = divmod(linhas, bdim[0])
+    dy, my = divmod(colunas, bdim[1])
+    gdim = ( (dx + (mx>0)), (dy + (my>0)) )
+
+    img_1 = img_1.astype(np.int32)
+    img_2 = img_2.astype(np.int32)
+    saida = saida.astype(np.int32)
 
 
-
-    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.2, 0.8, block=(400, 1, 1), grid=(1,1))
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), np.float32(0.2), np.float32(0.8), np.int32(linhas), np.int32(colunas), block=bdim, grid=gdim)
     # saida = img_1*0.2+img_2*0.8
     axarr[0].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
     imageio.imsave(out_folder+'/item_1_2_out_a.png', saida)
-
-    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.5, 0.5, block=(400, 1, 1), grid=(1,1))
+    saida = saida.astype(np.int32)
+    
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), np.float32(0.5), np.float32(0.5), np.int32(linhas), np.int32(colunas), block=bdim, grid=gdim)
     # saida = img_1*0.5+img_2*0.5
     axarr[1].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
     imageio.imsave(out_folder+'/item_1_2_out_b.png', saida)
+    saida = saida.astype(np.int32)
 
-    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), 0.8, 0.2, block=(400, 1, 1), grid=(1,1))
+    prop_parallel(drv.Out(saida), drv.In(img_1), drv.In(img_2), np.float32(0.8), np.float32(0.2), np.int32(linhas), np.int32(colunas), block=bdim, grid=gdim)
     # saida = img_1*0.8+img_2*0.2
     axarr[2].imshow(saida, cmap='gray', vmin=0, vmax=255)
     saida = saida.astype(np.uint8)
@@ -461,7 +480,7 @@ def item_1_8():
 
     # imprime(saida_1)
     saida_1 = saida_1.astype(np.uint8)
-    imageio.imsave(out_folder+'/../img_out/item_1_8_out_H1.png', saida_1)
+    imageio.imsave(out_folder+'/item_1_8_out_H1.png', saida_1)
 
     et = time.process_time()
     tt_time = et-st
